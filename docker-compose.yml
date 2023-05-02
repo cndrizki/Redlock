@@ -1,0 +1,40 @@
+version: '3.8'
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: redlock-web:2.1
+    ports:
+      - "7070:80"
+    volumes:
+      - ./web:/var/www/html
+    networks:
+      - app-network
+    depends_on:
+      - db
+    restart: always
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m" max-file: "3"
+  db:
+    image: mysql:5.7
+    container_name: redlock-db
+    environment:
+      MYSQL_ROOT_PASSWORD: server
+      MYSQL_DATABASE: redlock
+      MYSQL_USER: redlock-user
+      MYSQL_PASSWORD: redlock-password
+    volumes:
+      - db-data:/var/lib/mysql
+      - ./redlock-db.sql:/docker-entrypoint-initdb.d/redlock-db.sql
+    networks:
+      - app-network
+    restart: always
+
+volumes:
+  db-data:
+
+networks:
+  app-network:
